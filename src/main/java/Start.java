@@ -2,7 +2,7 @@ public class Start
 {
 	public static void main(String[] args)
 	{
-		System.out.println("Wspinaczka");
+		ClimbingWall climbingWall= ClimbingWall.getInstance();
+		climbingWall.printGraph();
 	}
-
 }
