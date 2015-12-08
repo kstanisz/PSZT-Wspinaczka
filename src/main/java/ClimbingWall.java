@@ -30,10 +30,11 @@ public class ClimbingWall
 		return instance;
 	}
 	
+	// Generator ilosci wierzcholkow. Nie wiadomo z jakiej puli losujemy
 	private int getRandomNumberOfPoints()
 	{
 		Random generator = new Random();
-		return generator.nextInt(boundOfPoints);
+		return generator.nextInt(boundOfPoints)+50;
 	}
 	
 	private void generatePoints()
