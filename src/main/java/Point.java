@@ -9,7 +9,7 @@ public class Point
 	
 	private static final double boundX=3.0;
 	private static final double boundY=100.0;
-	private static final double boundRandom= 1.0;
+	private static final double boundDifficulty= 1.0;
 	
 	Point()
 	{
@@ -53,7 +53,7 @@ public class Point
 	// Zwraca liczbê z przedzia³u [1,2] 
 	private double getRandomDifficulty()
 	{
-		return generator.nextDouble()+boundRandom;
+		return generator.nextDouble()+boundDifficulty;
 	}
 
 	@Override
