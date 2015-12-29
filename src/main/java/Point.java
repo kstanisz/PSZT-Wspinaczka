@@ -7,9 +7,9 @@ public class Point
 	private double difficulty;
 	private Random generator = new Random();
 	
-	private static final double boundX=3.0;
-	private static final double boundY=100.0;
-	private static final double boundDifficulty= 1.0;
+	private static final double WIDTH=3.0;
+	private static final double HEIGHT=100.0;
+	private static final double MIN_DIFFICULTY= 1.0;
 	
 	Point()
 	{
@@ -32,7 +32,7 @@ public class Point
 	
 	private double getRandomX()
 	{
-		return generator.nextDouble()*boundX;
+		return generator.nextDouble()*WIDTH;
 	}
 	
 	public double getY()
@@ -42,7 +42,7 @@ public class Point
 	
 	private double getRandomY()
 	{
-		return generator.nextDouble()*boundY;
+		return generator.nextDouble()*HEIGHT;
 	}
 	
 	public double getDifficulty()
@@ -53,17 +53,17 @@ public class Point
 	// Zwraca liczbê z przedzia³u [1,2] 
 	private double getRandomDifficulty()
 	{
-		return generator.nextDouble()+boundDifficulty;
+		return generator.nextDouble()+MIN_DIFFICULTY;
 	}
 
+	// Porownuje dwa punkty na podstawie wspolrzednych.
 	@Override
 	public boolean equals(Object other)
 	{		
 		if(other!=null && other instanceof Point)
 		{
 			Point point =(Point) other;
-			if(this.getX()==point.getX() && this.getY()==point.getY())
-				return true;
+			return (this.getX()==point.getX() && this.getY()==point.getY());
 		}
 		
 		return false;
