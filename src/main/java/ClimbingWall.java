@@ -1,3 +1,6 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Random;
 
 import org.jgrapht.graph.DefaultWeightedEdge;
@@ -12,6 +15,7 @@ public class ClimbingWall
 	private static final int MIN_POINTS=50;
 	private static final double WIDTH=3.0;
 	private static final double HEIGHT=100.0;
+	private static final String FILE_NAME="input.txt";
 	
 	private int numberOfPoints;
 	private Random generator = new Random();
@@ -23,7 +27,12 @@ public class ClimbingWall
 	{
 		this.numberOfPoints=getRandomNumberOfPoints();
 		this.graph= new SimpleDirectedWeightedGraph<Point, DefaultWeightedEdge>(DefaultWeightedEdge.class);
-		generatePoints();
+	}
+	
+	// Generator ilosci wierzcholkow
+	private int getRandomNumberOfPoints()
+	{
+		return generator.nextInt(MAX_POINTS-MIN_POINTS)+MIN_POINTS;
 	}
 	
 	public static ClimbingWall getInstance()
@@ -50,15 +59,9 @@ public class ClimbingWall
 	{
 		return endPoints;
 	}
-	
-	// Generator ilosci wierzcholkow
-	private int getRandomNumberOfPoints()
-	{
-		return generator.nextInt(MAX_POINTS-MIN_POINTS)+MIN_POINTS;
-	}
-	
+		
 	// Generujemy punkty 
-	private void generatePoints()
+	public void generatePoints()
 	{
 		// Generuje wierzcholki startowe
 		generateStartPoints();
@@ -78,29 +81,7 @@ public class ClimbingWall
 			}while(graph.containsVertex(point));
 			
 			graph.addVertex(point);
-			
-			//Dla dodanego wierzcholka dodaje krawedzie laczace go z innymi wierzcholkami, ktorych odleglosc <= 2
-			for(Point other: graph.vertexSet())
-			{
-				if(point.equals(other))
-					continue;
-				
-				//(x1-x2)^2
-				double x= Math.pow(Math.abs(point.getX()-other.getX()), 2.0);
-				//(y1-y2)^2
-				double y= Math.pow(Math.abs(point.getY()-other.getY()), 2.0);
-				
-				if(Math.sqrt(x+y)<=2.0)
-				{
-					// Definiujemy krawedzie
-					DefaultWeightedEdge e1=graph.addEdge(point, other);
-					DefaultWeightedEdge e2=graph.addEdge(other, point);
-					
-					// Definiujemy wagi
-					graph.setEdgeWeight(e1, other.getDifficulty());
-					graph.setEdgeWeight(e2, point.getDifficulty());
-				}
-			}
+			setEdgesToThePoint(point);
 		}
 	}
 	
@@ -118,12 +99,7 @@ public class ClimbingWall
 		graph.addVertex(startPoints[0]);
 		graph.addVertex(startPoints[1]);
 		
-		// Definiujemy krawedzie
-		DefaultWeightedEdge e1Start= graph.addEdge(startPoints[0], startPoints[1]);
-		DefaultWeightedEdge e2Start= graph.addEdge(startPoints[1], startPoints[0]);
-		// Nadajemy wagi krawedziom
-		graph.setEdgeWeight(e1Start, startPoints[1].getDifficulty());
-		graph.setEdgeWeight(e2Start, startPoints[0].getDifficulty());
+		setEdgesBetweenPoints(startPoints[0], startPoints[1]);
 	}
 	
 	// Analogicznie do generowania punktow startowych
@@ -138,10 +114,104 @@ public class ClimbingWall
 		graph.addVertex(endPoints[0]);
 		graph.addVertex(endPoints[1]);
 		
-		DefaultWeightedEdge e1End= graph.addEdge(endPoints[0], endPoints[1]);
-		DefaultWeightedEdge e2End= graph.addEdge(endPoints[1], endPoints[0]);
-		graph.setEdgeWeight(e1End, endPoints[1].getDifficulty());
-		graph.setEdgeWeight(e2End, endPoints[0].getDifficulty());
+		setEdgesBetweenPoints(endPoints[0], endPoints[1]);
+	}
+	
+	// Dodajemy krawedzie miedzy dwoma danymi punktami
+	private void setEdgesBetweenPoints(Point firstPoint,Point secondPoint)
+	{
+		//Definiujemy krawedzie
+		DefaultWeightedEdge firstEdge= graph.addEdge(firstPoint, secondPoint);
+		DefaultWeightedEdge secondEdge= graph.addEdge(secondPoint, firstPoint);
+		//Nadajemy wagi krawedziom
+		graph.setEdgeWeight(firstEdge, secondPoint.getDifficulty());
+		graph.setEdgeWeight(secondEdge, firstPoint.getDifficulty());
+	}
+	
+	//Dla dodanego wierzcholka dodaje krawedzie laczace go z innymi wierzcholkami, ktorych odleglosc <= 2
+	private void setEdgesToThePoint(Point point)
+	{
+		for(Point other: graph.vertexSet())
+		{
+			if(point.equals(other))
+				continue;
+			
+			//(x1-x2)^2
+			double x= Math.pow(Math.abs(point.getX()-other.getX()), 2.0);
+			//(y1-y2)^2
+			double y= Math.pow(Math.abs(point.getY()-other.getY()), 2.0);
+			
+			if(Math.sqrt(x+y)<=2.0)
+			{
+				// Definiujemy krawedzie
+				DefaultWeightedEdge e1=graph.addEdge(point, other);
+				DefaultWeightedEdge e2=graph.addEdge(other, point);
+				
+				// Definiujemy wagi
+				graph.setEdgeWeight(e1, other.getDifficulty());
+				graph.setEdgeWeight(e2, point.getDifficulty());
+			}
+		}
+	}
+	
+	// Odczytywanie punktow z pliku
+	public void readPointsFromFile()
+	{
+		try 
+		{
+		    BufferedReader in = new BufferedReader(new FileReader(FILE_NAME)); 
+		    
+		    String line;
+		    double[] pointInfo;
+		    
+		    // Odczytujemy punkty startowe
+		    for(int i=0;i<startPoints.length;i++)
+		    {
+		    	line = in.readLine();
+		    	pointInfo=getPointInfoFromLine(line);
+		    	startPoints[i]=createPointAndAddVertex(pointInfo);
+		    	setEdgesToThePoint(startPoints[i]);
+		    }
+		    
+		    //Odczytujemy punkty koncowe 
+		    for(int i=0;i<endPoints.length;i++)
+		    {		    	
+		    	line = in.readLine();
+		    	pointInfo=getPointInfoFromLine(line);
+		    	endPoints[i]=createPointAndAddVertex(pointInfo);
+		    	setEdgesToThePoint(endPoints[i]);
+		    }
+		    
+		    //Odczytujemy pozostale punkty
+		    while ((line = in.readLine()) != null && !line.isEmpty())
+		    {
+		    	pointInfo=getPointInfoFromLine(line);
+		    	Point point=createPointAndAddVertex(pointInfo);
+		    	setEdgesToThePoint(point);
+		    }
+		
+		    in.close();
+		} catch (IOException e) 
+		{
+			System.out.println("Blad odczytu pliku "+FILE_NAME+": "+e);
+		}
+		
+		numberOfPoints=graph.vertexSet().size();
+	}
+	
+	// Odczytujemy z linii dane punktu (x,y,difficulty)
+	private double[] getPointInfoFromLine(String line)
+	{
+		String[] splittedLine = line.split(" ");
+		return new double[] { Double.parseDouble(splittedLine[0]), Double.parseDouble(splittedLine[1]), Double.parseDouble(splittedLine[2]) };
+	}
+	
+	// Tworzymy punkt i dodajemy wierzcholek na podstawie informacji z linii
+	private Point createPointAndAddVertex(double[] pointInfo)
+	{
+		Point point= new Point(pointInfo[0],pointInfo[1],pointInfo[2]);
+		graph.addVertex(point);
+		return point;
 	}
 	
 	public void printGraph()

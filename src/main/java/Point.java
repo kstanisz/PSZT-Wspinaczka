@@ -25,6 +25,13 @@ public class Point
 		this.difficulty= getRandomDifficulty();
 	}
 	
+	Point(double x, double y, double difficulty)
+	{
+		this.x=x;
+		this.y=y;
+		this.difficulty=difficulty;
+	}
+	
 	public double getX()
 	{
 		return x;
