@@ -1,6 +1,8 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Random;
 
 import org.jgrapht.graph.DefaultWeightedEdge;
@@ -15,6 +17,7 @@ public class ClimbingWall
 	private static final int MIN_POINTS=50;
 	private static final double WIDTH=3.0;
 	private static final double HEIGHT=100.0;
+	private static final int PRECISION=2;
 	private static final String FILE_NAME="input.txt";
 	
 	private int numberOfPoints;
@@ -89,7 +92,8 @@ public class ClimbingWall
 	private void generateStartPoints()
 	{	
 		// Losowy punkt z przedialu 0.0 - 3.0
-		double x1Start= generator.nextDouble()*WIDTH;
+		BigDecimal firstX = new BigDecimal(generator.nextDouble()*WIDTH).setScale(PRECISION,RoundingMode.HALF_UP);
+		double x1Start= firstX.doubleValue();
 		// Na prawo o 1.0 lub na lewo o 1.0 od pierwszego
 		double x2Start= x1Start>=WIDTH/2? x1Start-1.0 : x1Start+1.0;
 		
@@ -105,7 +109,8 @@ public class ClimbingWall
 	// Analogicznie do generowania punktow startowych
 	private void generateEndPoints()
 	{
-		double x1End= generator.nextDouble()*WIDTH;
+		BigDecimal firstX = new BigDecimal(generator.nextDouble()*WIDTH).setScale(PRECISION,RoundingMode.HALF_UP);
+		double x1End= firstX.doubleValue();
 		double x2End= x1End>=WIDTH/2? x1End-1.0 : x1End+1.0;
 		
 		endPoints[0]= new Point(x1End,HEIGHT);
@@ -143,13 +148,7 @@ public class ClimbingWall
 			
 			if(Math.sqrt(x+y)<=2.0)
 			{
-				// Definiujemy krawedzie
-				DefaultWeightedEdge e1=graph.addEdge(point, other);
-				DefaultWeightedEdge e2=graph.addEdge(other, point);
-				
-				// Definiujemy wagi
-				graph.setEdgeWeight(e1, other.getDifficulty());
-				graph.setEdgeWeight(e2, point.getDifficulty());
+				setEdgesBetweenPoints(point, other);
 			}
 		}
 	}

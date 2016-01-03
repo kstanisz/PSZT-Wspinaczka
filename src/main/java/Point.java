@@ -1,3 +1,5 @@
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Random;
 
 public class Point 
@@ -5,11 +7,12 @@ public class Point
 	private double x;
 	private double y;
 	private double difficulty;
-	private Random generator = new Random();
+	private static Random generator = new Random();
 	
 	private static final double WIDTH=3.0;
 	private static final double HEIGHT=100.0;
 	private static final double MIN_DIFFICULTY= 1.0;
+	private static final int PRECISION=2;
 	
 	Point()
 	{
@@ -39,7 +42,8 @@ public class Point
 	
 	private double getRandomX()
 	{
-		return generator.nextDouble()*WIDTH;
+		BigDecimal x = new BigDecimal(generator.nextDouble()*WIDTH).setScale(PRECISION,RoundingMode.HALF_UP);
+		return x.doubleValue();
 	}
 	
 	public double getY()
@@ -49,7 +53,8 @@ public class Point
 	
 	private double getRandomY()
 	{
-		return generator.nextDouble()*HEIGHT;
+		BigDecimal y = new BigDecimal(generator.nextDouble()*HEIGHT).setScale(PRECISION,RoundingMode.HALF_UP);
+		return y.doubleValue();
 	}
 	
 	public double getDifficulty()
