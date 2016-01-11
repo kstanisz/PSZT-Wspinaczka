@@ -6,5 +6,14 @@ public class Start
 		//climbingWall.generatePoints();
 		climbingWall.readPointsFromFile();
 		climbingWall.printGraph();
+		
+		try 
+			{
+				new Gui();
+				
+			} catch (Exception e) 
+			{
+				e.printStackTrace();
+			}
 	}
 }
