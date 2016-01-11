@@ -26,6 +26,8 @@ public class ClimbingWall
 	private Point[] startPoints= new Point[2];
 	private Point[] endPoints= new Point[2];
 	
+	Vector<Point> v = new Vector<Point>(); //vector zawierajacy wszystkie punkty
+	
 	private ClimbingWall()
 	{
 		this.numberOfPoints=getRandomNumberOfPoints();
@@ -170,6 +172,8 @@ public class ClimbingWall
 		    	pointInfo=getPointInfoFromLine(line);
 		    	startPoints[i]=createPointAndAddVertex(pointInfo);
 		    	setEdgesToThePoint(startPoints[i]);
+		    	
+		    	v.addElement(startPoints[i]);
 		    }
 		    
 		    //Odczytujemy punkty koncowe 
@@ -179,6 +183,8 @@ public class ClimbingWall
 		    	pointInfo=getPointInfoFromLine(line);
 		    	endPoints[i]=createPointAndAddVertex(pointInfo);
 		    	setEdgesToThePoint(endPoints[i]);
+		    	
+		    	v.addElement(endPoints[i]);
 		    }
 		    
 		    //Odczytujemy pozostale punkty
@@ -187,6 +193,8 @@ public class ClimbingWall
 		    	pointInfo=getPointInfoFromLine(line);
 		    	Point point=createPointAndAddVertex(pointInfo);
 		    	setEdgesToThePoint(point);
+		    	
+		    	v.addElement(point);
 		    }
 		
 		    in.close();
@@ -219,5 +227,9 @@ public class ClimbingWall
 		{
 			System.out.println(e);
 		}
+	}
+	public int getnumberOfPoints()
+	{
+		return this.numberOfPoints;
 	}
 }
