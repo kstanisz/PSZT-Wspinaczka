@@ -1,3 +1,5 @@
+import java.util.LinkedList;
+
 public class Start 
 {
 	public static void main(String[] args)
@@ -6,6 +8,11 @@ public class Start
 		//climbingWall.generatePoints();
 		climbingWall.readPointsFromFile();
 		climbingWall.printGraph();
+		Climber c = new Climber(climbingWall);
+		LinkedList<Move> moves = c.climb();
+		
+		for(Move m : moves)
+			System.out.println(m);
 		
 		try 
 			{

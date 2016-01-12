@@ -18,4 +18,18 @@ public class Move
 	{
 		return leg;
 	}	
+	
+	public String toString() {
+		switch (leg) {
+			case TOP_LEFT :
+				return "Lewa reka na " + point.toString();
+			case TOP_RIGHT :
+				return "Prawa reka na " + point.toString();
+			case BOTTOM_LEFT :
+				return "Lewa noga na " + point.toString();
+			case BOTTOM_RIGHT :
+				return "Prawa noga na " + point.toString();
+		}
+		return "cos sie wydarzy³o z³ego :( ";
+	}
 }
