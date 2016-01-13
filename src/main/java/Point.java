@@ -62,7 +62,7 @@ public class Point
 		return difficulty;
 	}
 	
-	// Zwraca liczbê z przedzia³u [1,2] 
+	// Zwraca liczb? z przedzia?u [1,2] 
 	private double getRandomDifficulty()
 	{
 		return generator.nextDouble()+MIN_DIFFICULTY;

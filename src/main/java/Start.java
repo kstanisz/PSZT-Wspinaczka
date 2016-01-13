@@ -16,7 +16,8 @@ public class Start
 		
 		try 
 			{
-				new Gui();
+				Gui gui = new Gui();
+				gui.setVisualisation(moves);
 				
 			} catch (Exception e) 
 			{
