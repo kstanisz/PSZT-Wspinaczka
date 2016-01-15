@@ -13,6 +13,7 @@ import javax.swing.JFrame;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 
 
@@ -48,16 +49,23 @@ public class Gui extends JFrame
 	private void initialize() 
 	{		 
 		
-		// G³ówny JFrame
+		// Gï¿½ï¿½wny JFrame
 		mainFrame=setMainFrame();
         
 		//??
-        ScrollPane myContainer = new ScrollPane();
-        mainFrame.add(myContainer, BorderLayout.CENTER);
+        //ScrollPane myContainer = new ScrollPane();   
+      //  mainFrame.add(myContainer, BorderLayout.CENTER);
+        
+        
+        //?
+		JScrollPane myContainer = new JScrollPane(new Wall());     
+		myContainer.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		
+		 mainFrame.add(myContainer, BorderLayout.CENTER);
         
         // Sciana
-        Component  wall = new Wall();
-        myContainer.add(wall);
+       // Component  wall = new Wall();
+        //myContainer.add(wall);
         myContainer.setBackground(Color.WHITE);
              
 		buttonPanel=setButtonPanel();
@@ -128,7 +136,7 @@ public class Gui extends JFrame
 	private JLabel setLabelLiczbaPunktow()
 	{
 		EmptyBorder border = new EmptyBorder(10, 10, 10, 20);
-		JLabel label_liczba_pktow = new JLabel("Liczba punktów: "+ ClimbingWall.getInstance().getnumberOfPoints());
+		JLabel label_liczba_pktow = new JLabel("Liczba punktï¿½w: "+ ClimbingWall.getInstance().getnumberOfPoints());
 		label_liczba_pktow.setAlignmentX(Component.LEFT_ALIGNMENT);
 		label_liczba_pktow.setBorder(border);
 		
@@ -138,7 +146,7 @@ public class Gui extends JFrame
 	private JLabel setLabelGlebokosc()
 	{
 		EmptyBorder border = new EmptyBorder(10, 10, 10, 20);
-		JLabel label_glebokosc = new JLabel("G³êbokoœæ: ");
+		JLabel label_glebokosc = new JLabel("Gï¿½ï¿½bokoï¿½ï¿½: ");
 		label_glebokosc.setAlignmentX(Component.LEFT_ALIGNMENT);
 		label_glebokosc.setBorder(border);
 		
