@@ -53,19 +53,19 @@ public class Gui extends JFrame
 		mainFrame=setMainFrame();
         
 		//??
-        //ScrollPane myContainer = new ScrollPane();   
-      //  mainFrame.add(myContainer, BorderLayout.CENTER);
+        ScrollPane myContainer = new ScrollPane();   
+        mainFrame.add(myContainer, BorderLayout.CENTER);
         
         
         //?
-		JScrollPane myContainer = new JScrollPane(new Wall());     
-		myContainer.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-		
-		 mainFrame.add(myContainer, BorderLayout.CENTER);
+	//	JScrollPane myContainer = new JScrollPane(new Wall());     
+	//	myContainer.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+	//	
+	//	 mainFrame.add(myContainer, BorderLayout.CENTER);
         
         // Sciana
-       // Component  wall = new Wall();
-        //myContainer.add(wall);
+        Component  wall = new Wall();
+        myContainer.add(wall);
         myContainer.setBackground(Color.WHITE);
              
 		buttonPanel=setButtonPanel();
