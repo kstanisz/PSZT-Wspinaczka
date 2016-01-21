@@ -9,6 +9,8 @@ public class AStarSolver {
 	private AStarNode goal;
 	private Comparator<AStarNode> comp;
 	private AStarGraph graph;
+	private double cost;
+	private int depth = 0;
 	
 	public AStarSolver(AStarNode position, AStarNode goal, Comparator<AStarNode> comp, AStarGraph graph) {
 		this.position = position;
@@ -23,18 +25,20 @@ public class AStarSolver {
 		frontier.add(position);
 		HashMap<AStarNode, AStarNode> came_from = new HashMap<AStarNode, AStarNode>();
 		HashMap<AStarNode, Double> cost_so_far = new HashMap<AStarNode, Double>();
+		HashMap<AStarNode, Integer> depth_so_far = new HashMap<AStarNode, Integer>();
 		came_from.put(position, null);
 		cost_so_far.put(position, new Double(0));
+		depth_so_far.put(position, new Integer(0));
 		while(!frontier.isEmpty()) {
-			++counter;
 			AStarNode current = frontier.poll();
+			int current_depth = depth_so_far.get(current);
+			if(current_depth > depth) 
+				depth = current_depth;
 			if(current.isEnd(goal)) {
-				System.out.println(cost_so_far.get(current) + " " + counter);
+				cost = cost_so_far.get(current);
+				System.out.println("Cost: " + cost + " maxgleb: " + depth);
 				return prepareMoveList(came_from, current);
 			}
-			
-			if(counter%1000 == 0)
-				System.out.println(cost_so_far.size());
 			
 			List<AStarNode> nextNodes = graph.nextNodes(current);
 			
@@ -42,12 +46,15 @@ public class AStarSolver {
 					double new_cost = cost_so_far.get(current) + node.value();
 					if(!cost_so_far.containsKey(node) || new_cost < cost_so_far.get(node)) {
 						cost_so_far.put(node, new_cost);
+						depth_so_far.put(node, new Integer(current_depth + 1));
 						node.setPriority(new_cost + node.heuristic(goal));
 						frontier.add(node);
 						came_from.put(node, current);
 					}
 			}
 		}
+		cost = -1;
+		System.out.println("Cost: " + cost + " maxgleb: " + depth);
 		return null;
 	}
 	
@@ -58,5 +65,13 @@ public class AStarSolver {
 			current = came_from.get(current);
 		}
 		return moves;
+	}
+	
+	public double getCost() {
+		return cost;
+	}
+	
+	public double getDepth() {
+		return depth;
 	}
 }

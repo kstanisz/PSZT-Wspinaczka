@@ -244,19 +244,28 @@ public class ClimbingWall implements AStarGraph
 		for (int i = 0; i < 4; ++i) {
 			for (DefaultWeightedEdge edge : graph.outgoingEdgesOf(limbs[i]) ) {
 				Point p = graph.getEdgeTarget(edge);
-				Position pos = null;
+				Position pos[] = new Position[3];
 				switch(i) {
-					case 0 : pos = new Position(p, current.arm1, current.leg0, current.leg1);
+					case 0 : pos[0] = new Position(current.arm0, p, current.leg0, current.leg1);
+							 pos[1] = new Position(current.arm0, current.arm1, p, current.leg1);
+							 pos[2] = new Position(current.arm0, current.arm1, current.leg0, p);
 							break;
-					case 1 : pos = new Position(current.arm0, p, current.leg0, current.leg1);
+					case 1 : pos[0] = new Position(p, current.arm1, current.leg0, current.leg1);
+					 		pos[1] = new Position(current.arm0, current.arm1, p, current.leg1);
+					 		pos[2] = new Position(current.arm0, current.arm1, current.leg0, p);
 							break;
-					case 2 : pos = new Position(current.arm0, current.arm1, p, current.leg1);
+					case 2 : pos[0] = new Position(p, current.arm1, current.leg0, current.leg1);
+			 				pos[1] = new Position(current.arm0, p, current.leg0, current.leg1);
+			 				pos[2] = new Position(current.arm0, current.arm1, current.leg0, p);
 							break;
-					case 3 : pos = new Position(current.arm0, current.arm1, current.leg0, p);
+					case 3 : pos[0] = new Position(p, current.arm1, current.leg0, current.leg1);
+	 						pos[1] = new Position(current.arm0, p, current.leg0, current.leg1);
+	 						pos[2] = new Position(current.arm0, current.arm1, p, current.leg1);
 							break;
 				}
-				if(pos.isValid()) 
-					nextNodes.add(pos);	
+				for (Position move : pos)
+					if(move.isValid()) 
+						nextNodes.add(move);	
 			}
 		}
 		return nextNodes;
