@@ -38,9 +38,8 @@ class Wall extends JComponent
 	private double y_move;
 	private int x_average,y_average;
 	
-	public Wall(AStarSolver solver)
+	public Wall(List<AStarNode> positions)
 	{	
-		List<AStarNode> positions = solver.solve();
 		Position last = null;
 		for(AStarNode node : positions) {
 			if(last == null)
@@ -168,13 +167,13 @@ class Wall extends JComponent
 					
 				if(i == 0)
 				{
-					current_top_left = new Point(x_start, y_start);
 					current_bottom_left = new Point(x_start, y_start);
+					current_bottom_right = new Point(x_start, y_start);
 				}
 				else if(i == 1)
 				{
+					current_top_left = new Point(x_start, y_start);
 					current_top_right = new Point(x_start, y_start);
-					current_bottom_right = new Point(x_start, y_start);
 				}
 			}	
 	}
