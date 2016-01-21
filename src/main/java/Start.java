@@ -4,6 +4,7 @@ public class Start
 	{
 		ClimbingWall climbingWall= ClimbingWall.getInstance();
 		climbingWall.readPointsFromFile();
+		//climbingWall.generatePoints();
 		
 		try 
 			{

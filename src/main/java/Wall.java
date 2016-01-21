@@ -91,7 +91,8 @@ class Wall extends JComponent
 		
 		synchronized(this)
 		{
-			drawMoves(g, index);
+			if(!stopped)
+				drawMoves(g, index);
 							
 			if(current_top_right != null)
 				drawTopRight(g);
@@ -105,7 +106,6 @@ class Wall extends JComponent
 			g.setColor(new Color(153,0,153));
 			drawSpider(g);
 		}
-
 	}
 	
 	public void drawWall(Graphics g)

@@ -15,7 +15,7 @@ public class ClimbingWall implements AStarGraph
 {
 	private static ClimbingWall instance=null;
 	//maksymalna liczba punktow
-	private static final int MAX_POINTS=300;
+	private static final int MAX_POINTS=2000;
 	//minimalna liczba punktow
 	private static final int MIN_POINTS=50;
 	private static final double WIDTH=3.0;
@@ -99,11 +99,9 @@ public class ClimbingWall implements AStarGraph
 		// Losowy punkt z przedialu 0.0 - 3.0
 		BigDecimal firstX = new BigDecimal(generator.nextDouble()*WIDTH).setScale(PRECISION,RoundingMode.HALF_UP);
 		double x1Start= firstX.doubleValue();
-		// Na prawo o 1.0 lub na lewo o 1.0 od pierwszego
-		double x2Start= x1Start>=WIDTH/2? x1Start-1.0 : x1Start+1.0;
 		
 		startPoints[0]= new Point(x1Start,0.0);
-		startPoints[1]= new Point(x2Start,0.0);
+		startPoints[1]= new Point(x1Start,1.0);
 		
 		graph.addVertex(startPoints[0]);
 		graph.addVertex(startPoints[1]);
@@ -133,9 +131,12 @@ public class ClimbingWall implements AStarGraph
 		//Definiujemy krawedzie
 		DefaultWeightedEdge firstEdge= graph.addEdge(firstPoint, secondPoint);
 		DefaultWeightedEdge secondEdge= graph.addEdge(secondPoint, firstPoint);
+
 		//Nadajemy wagi krawedziom
-		graph.setEdgeWeight(firstEdge, secondPoint.getDifficulty());
-		graph.setEdgeWeight(secondEdge, firstPoint.getDifficulty());
+		if(firstEdge!=null)
+			graph.setEdgeWeight(firstEdge, secondPoint.getDifficulty());
+		if(secondEdge!=null)
+			graph.setEdgeWeight(secondEdge, firstPoint.getDifficulty());
 	}
 	
 	//Dla dodanego wierzcholka dodaje krawedzie laczace go z innymi wierzcholkami, ktorych odleglosc <= 2
