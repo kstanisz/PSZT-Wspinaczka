@@ -4,6 +4,8 @@ import java.awt.Graphics2D;
 import java.awt.Graphics;
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.List;
+
 import javax.swing.JComponent;
 
 
@@ -33,8 +35,9 @@ class Wall extends JComponent
 
 	
 	ClimbingWall climbingWall= ClimbingWall.getInstance();
-	Climber c = new Climber(climbingWall);
-	LinkedList<Move> moves =  c.climb();
+	AStarSolver c;
+	LinkedList<Move> moves = new LinkedList<Move>();
+	
 	
 	Point current_top_right = null;
 	Point current_top_left = null;
@@ -45,9 +48,30 @@ class Wall extends JComponent
 
 	Boolean init = true;
 	
-				  
+	public Wall() {
+		Point[] starts = climbingWall.getStartPoints();
+		Point[] ends = climbingWall.getEndPoints();
+		AStarSolver c = new AStarSolver(new Position(starts[1], starts[1],  starts[0], starts[0]), 
+								new Position(ends[0], ends[1], ends[0], ends[1]), AStarNodeComparator.INSTANCE, climbingWall);
+		List<AStarNode> positions = c.solve();
+		
+		Position last = null;
+		for(AStarNode node : positions) {
+			if(last == null)
+				last = (Position)node;
+			else {
+				moves.add(Position.moveLimb((Position)node, last));
+				last = (Position)node;
+			}
+		}
+		for(Move m : moves) 
+			System.out.println(m);
+	}
+	
 	public void paint(Graphics g2) 
 	{
+		
+		
 	  Graphics2D g = (Graphics2D) g2;
 
 		if(init)

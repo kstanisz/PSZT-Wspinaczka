@@ -3,13 +3,15 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 import java.util.Vector;
 
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleDirectedWeightedGraph;
 
-public class ClimbingWall 
+public class ClimbingWall implements AStarGraph
 {
 	private static ClimbingWall instance=null;
 	//maksymalna liczba punktow
@@ -232,5 +234,30 @@ public class ClimbingWall
 	public int getnumberOfPoints()
 	{
 		return this.numberOfPoints;
+	}
+
+	public List<AStarNode> nextNodes(AStarNode position) {
+		List<AStarNode> nextNodes = new LinkedList<AStarNode>();
+		Position current = (Position)position;
+		Point limbs[] = {current.arm0, current.arm1, current.leg0, current.leg1 };
+		for (int i = 0; i < 4; ++i) {
+			for (DefaultWeightedEdge edge : graph.outgoingEdgesOf(limbs[i]) ) {
+				Point p = graph.getEdgeTarget(edge);
+				Position pos = null;
+				switch(i) {
+					case 0 : pos = new Position(p, current.arm1, current.leg0, current.leg1);
+							break;
+					case 1 : pos = new Position(current.arm0, p, current.leg0, current.leg1);
+							break;
+					case 2 : pos = new Position(current.arm0, current.arm1, p, current.leg1);
+							break;
+					case 3 : pos = new Position(current.arm0, current.arm1, current.leg0, p);
+							break;
+				}
+				if(pos.isValid()) 
+					nextNodes.add(pos);	
+			}
+		}
+		return nextNodes;
 	}
 }

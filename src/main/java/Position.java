@@ -1,12 +1,13 @@
+import java.util.List;
 
-public class Position {
+
+public class Position implements AStarNode {
 	Point arm0;
 	Point arm1;
 	Point leg0;
 	Point leg1;
 	private double maxStep = 2.0;
 	double priority = Double.MAX_VALUE;
-	private static Point goal[];
 	
 	public Position(Point arm0, Point arm1, Point leg0, Point leg1){
 		this.arm0 = arm0;
@@ -19,8 +20,8 @@ public class Position {
 		this.priority = priority;
 	}
 	
-	public static void setGoal(Point[] goal) {
-		Position.goal = goal;
+	public double getPriority() {
+		return priority;
 	}
 	
 	public boolean isValid() {
@@ -35,40 +36,71 @@ public class Position {
 	}
 	
 	public int hashCode() {
-		StringBuffer r = new StringBuffer();
-		if(arm1.getX() < arm0.getX())
-			r.append(arm1.getX() + arm0.getX());
-		else 
-			r.append(arm0.getX() + arm1.getX());
-		if(leg1.getX() < leg0.getX())
-			r.append(leg1.getX() + leg0.getX());
-		else 
-			r.append(leg0.getX() + leg1.getX());
-		return r.toString().hashCode();
+		int result = 0;
+		Point tab[] = new Point[4];
+		if(isFirstFirst(arm1, arm0)) {
+			tab[0] = arm1;
+			tab[1] = arm0;
+		} else {
+			tab[0] = arm0;
+			tab[1] = arm1;
+		}
+		
+		if(isFirstFirst(leg1, leg0)) {
+			tab[2] = leg1;
+			tab[3] = leg0;
+		} else {
+			tab[2] = leg0;
+			tab[3] = leg1;
+		}
+		
+		for(Point p : tab) {
+			result = result*31 + hashDouble(p.getX());
+			result = result*31 + hashDouble(p.getY());
+		}
+		
+		
+		return result;
 	}
 	
+	private static int hashDouble(double value) {
+	    long bits = Double.doubleToLongBits(value);
+	    return (int)(bits ^ (bits >>> 32));
+	}
+	
+	private boolean isFirstFirst (Point first, Point second) {
+		if(first.getX() < second.getX())
+			return true;
+		if(first.getX() > second.getX())
+			return false;
+		if(first.getY() < second.getY())
+			return true;
+		return false;
+	}
 	public boolean equals(Object o) {
 		if (o == null)
 			return false;
 		if (o instanceof Position) {
 			Position p = (Position)o;
-			return p.arm0.equals(arm0) && p.arm1.equals(arm1) && p.leg0.equals(leg0) && p.leg1.equals(leg1);
+			if((p.arm0.equals(arm0) && p.arm1.equals(arm1)) || (p.arm0.equals(arm1) && p.arm1.equals(arm0)))
+				if((p.leg0.equals(leg0) && p.leg1.equals(leg1)) || (p.leg0.equals(leg1) && p.leg1.equals(leg0)))
+						return true;
 		}
 		return false;
 	}
 	
-	public double heuristic() {
+	public double heuristic(AStarNode goal) {
 		double sum = 0;
-		
+		Position g = (Position) goal;
 		// heurystyka dla r¹k - suma odleg³oœci w linii prostej r¹k do celi
-		double arm0ToGoalOne = Math.sqrt((goal[0].getY()-arm1.getY())*(goal[0].getY()-arm1.getY()) + 
-						(goal[0].getX()-arm1.getX())*(goal[1].getX()-arm1.getX()));
-		double arm0ToGoalTwo = Math.sqrt((goal[1].getY()-arm1.getY())*(goal[0].getY()-arm1.getY()) + 
-						(goal[1].getX()-arm1.getX())*(goal[1].getX()-arm1.getX()));
-		double arm1ToGoalOne = Math.sqrt((goal[0].getY()-arm0.getY())*(goal[0].getY()-arm0.getY()) + 
-						(goal[0].getX()-arm0.getX())*(goal[1].getX()-arm0.getX()));
-		double arm1ToGoalTwo = Math.sqrt((goal[1].getY()-arm0.getY())*(goal[0].getY()-arm0.getY()) + 
-						(goal[1].getX()-arm0.getX())*(goal[1].getX()-arm0.getX()));
+		double arm0ToGoalOne = Math.sqrt((g.arm0.getY()-arm1.getY())*(g.arm0.getY()-arm1.getY()) + 
+						(g.arm0.getX()-arm1.getX())*(g.arm0.getX()-arm1.getX()));
+		double arm0ToGoalTwo = Math.sqrt((g.arm1.getY()-arm1.getY())*(g.arm1.getY()-arm1.getY()) + 
+						(g.arm1.getX()-arm1.getX())*(g.arm1.getX()-arm1.getX()));
+		double arm1ToGoalOne = Math.sqrt((g.arm0.getY()-arm0.getY())*(g.arm0.getY()-arm0.getY()) + 
+						(g.arm0.getX()-arm0.getX())*(g.arm0.getX()-arm0.getX()));
+		double arm1ToGoalTwo = Math.sqrt((g.arm1.getY()-arm0.getY())*(g.arm1.getY()-arm0.getY()) + 
+						(g.arm1.getX()-arm0.getX())*(g.arm1.getX()-arm0.getX()));
 		double steps1, steps2;
 		if(new Double(arm0ToGoalOne + arm1ToGoalTwo).compareTo(new Double(arm1ToGoalOne + arm0ToGoalTwo)) < 0) { // minimum odleg³oœci r¹k do takiego momentu, w którym obie s¹ na ró¿nych punktach koñcowych, sprawdzamy która kombinacja daje krótsz¹ sumê odleg³oœci
 			steps1 = Math.ceil(arm0ToGoalOne/maxStep); // minimalna iloœæ przesuniêæ pierwszej rêki do pierwszego celu
@@ -89,12 +121,12 @@ public class Position {
 		//heurystyka dla nóg - suma odleg³oœci nóg od wysokoœci œciany-maxStep  (nie jest istotne gdzie nogi skoñcz¹ swój bieg, byle rêce by³y na miejscu)
 		//wysokoœæ sciany - maxStep to minimalna wysokoœæ, na któr¹ musz¹ wejsæ nogi
 		
-		double leg0ToTop = goal[0].getY()-maxStep-leg0.getY();
+		double leg0ToTop = g.arm0.getY()-maxStep-leg0.getY();
 		if(new Double(leg0ToTop).compareTo(new Double(0)) < 0) {
 			leg0ToTop = 0;
 		}
 	
-		double leg1ToTop = goal[0].getY()-maxStep-leg1.getY();
+		double leg1ToTop = g.arm0.getY()-maxStep-leg1.getY();
 		if(new Double(leg1ToTop).compareTo(new Double(0)) < 0) {
 			leg1ToTop = 0;
 		}
@@ -106,11 +138,6 @@ public class Position {
 	
 	public double value() {
 		return arm0.getDifficulty() + arm1.getDifficulty() + leg0.getDifficulty() + leg1.getDifficulty();
-	}
-	
-	public boolean isEnd() {
-		return (arm1.equals(goal[0]) && arm0.equals(goal[1])) || 
-				(arm1.equals(goal[1]) && arm0.equals(goal[0])) ;
 	}
 	
 	public void printString() {
@@ -152,5 +179,16 @@ public class Position {
 			return new Move(last.leg1, Leg.BOTTOM_RIGHT);
 		}
 		return null;
+	}
+	
+	public boolean isEnd(AStarNode end) {
+		if (end == null)
+			return false;
+		if (end instanceof Position) {
+			Position p = (Position)end;
+			return (arm1.equals(p.arm1) && arm0.equals(p.arm0)) || 
+					(arm1.equals(p.arm0) && arm0.equals(p.arm1)) ;
+		}
+		return false;
 	}
 }
