@@ -83,10 +83,10 @@ public class Gui extends JFrame
 		      {
 		    	  synchronized(wallPanel)
 		    	  {
-		    		  if(index<wallPanel.getMovesLisSize()-1 && !wallPanel.isStopped())
+		    		  if(index<wallPanel.getMovesLisSize() && !wallPanel.isStopped())
 		    		  {
 		    			  wallPanel.setIndex(index);
-		    			  index++; 
+		    			  index++;   
 		    		  }
 		    	  }
 		        wallPanel.repaint();
