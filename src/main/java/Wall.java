@@ -24,7 +24,7 @@ class Wall extends JComponent
 	private int top_margin = 10;
 	private int index=0;
 	
-	int x_start, y_start;
+	private double x_start, y_start;
 	private boolean stopped=true;
 	
 	Point current_top_right = null;
@@ -129,12 +129,12 @@ class Wall extends JComponent
 	{
 		for(int i=0; i < ClimbingWall.getInstance().v.size(); i++) 
 		{
-			int y = (int)ClimbingWall.getInstance().v.get(i).getX();
-			int x = (int)ClimbingWall.getInstance().v.get(i).getY();
+			double y = ClimbingWall.getInstance().v.get(i).getX();
+			double x = ClimbingWall.getInstance().v.get(i).getY();
 			double difficulty = ClimbingWall.getInstance().v.get(i).getDifficulty();
 			x=left_margin+x*rect_side;
 			y=top_margin+y*rect_side;
-			
+
 			if( difficulty >= 1.0  && difficulty < 2.0)
 			{
 				g.setColor(new Color(192, 192, 192)); //light gray
@@ -156,7 +156,7 @@ class Wall extends JComponent
 				g.setColor(Color.BLACK);
 			}
 	
-			g.fillOval(x-oval_radius/2,y-oval_radius/2, oval_radius, oval_radius);
+			g.fillOval((int)x-oval_radius/2,(int)y-oval_radius/2, oval_radius, oval_radius);
 		}  
 	}
 	
@@ -164,8 +164,8 @@ class Wall extends JComponent
 	{
 			for (int i=0; i<2 ; i++)
 			{
-				y_start = (int)ClimbingWall.getInstance().v.get(i).getX();
-				x_start = (int)ClimbingWall.getInstance().v.get(i).getY();
+				y_start = ClimbingWall.getInstance().v.get(i).getX();
+				x_start = ClimbingWall.getInstance().v.get(i).getY();
 				x_start = x_start*rect_side;
 				y_start = y_start *rect_side;
 					
@@ -191,19 +191,19 @@ class Wall extends JComponent
 			
 			if(moves.get(index).getLeg().toString() == "TOP_RIGHT")
 			{
-				current_top_right = new Point((int)y_move*rect_side,(int)x_move*rect_side);	
+				current_top_right = new Point(y_move*rect_side,x_move*rect_side);	
 			}
 			else if(moves.get(index).getLeg().toString() == "TOP_LEFT")
 			{
-				current_top_left = new Point((int)y_move*rect_side,(int)x_move*rect_side);
+				current_top_left = new Point(y_move*rect_side,x_move*rect_side);
 			}
 			else if(moves.get(index).getLeg().toString() == "BOTTOM_RIGHT")
 			{
-				current_bottom_right = new Point((int)y_move*rect_side,(int)x_move*rect_side);
+				current_bottom_right = new Point(y_move*rect_side,x_move*rect_side);
 			}
 			else if(moves.get(index).getLeg().toString() == "BOTTOM_LEFT")
 			{
-				current_bottom_left = new Point((int)y_move*rect_side,(int)x_move*rect_side);
+				current_bottom_left = new Point(y_move*rect_side,x_move*rect_side);
 			}		
 	}
 	
