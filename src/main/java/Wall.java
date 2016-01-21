@@ -38,14 +38,9 @@ class Wall extends JComponent
 	private double y_move;
 	private int x_average,y_average;
 	
-	public Wall()
+	public Wall(AStarSolver solver)
 	{	
-		Point[] starts = climbingWall.getStartPoints();
-		Point[] ends = climbingWall.getEndPoints();
-		AStarSolver c = new AStarSolver(new Position(starts[1], starts[1],  starts[0], starts[0]), 
-								new Position(ends[0], ends[1], ends[0], ends[1]), AStarNodeComparator.INSTANCE, climbingWall);
-		List<AStarNode> positions = c.solve();
-		
+		List<AStarNode> positions = solver.solve();
 		Position last = null;
 		for(AStarNode node : positions) {
 			if(last == null)

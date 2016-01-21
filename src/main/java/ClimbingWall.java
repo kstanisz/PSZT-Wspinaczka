@@ -15,9 +15,9 @@ public class ClimbingWall implements AStarGraph
 {
 	private static ClimbingWall instance=null;
 	//maksymalna liczba punktow
-	private static final int MAX_POINTS=2000;
+	private static final int MAX_POINTS=600;
 	//minimalna liczba punktow
-	private static final int MIN_POINTS=50;
+	private static final int MIN_POINTS=500;
 	private static final double WIDTH=3.0;
 	private static final double HEIGHT=100.0;
 	private static final int PRECISION=2;

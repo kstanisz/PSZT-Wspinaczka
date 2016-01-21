@@ -25,6 +25,7 @@ public class Gui extends JFrame
 	
 	Toolkit tk = Toolkit.getDefaultToolkit();
     Dimension d = tk.getScreenSize();
+    private AStarSolver solver;
 	
     private int index=0;
     
@@ -46,6 +47,14 @@ public class Gui extends JFrame
 	private JLabel label_koszt_dotarcia;
 	private Wall wallPanel;
 		
+	public Gui()
+	{
+		ClimbingWall climbingWall=ClimbingWall.getInstance();
+		Point[] starts = climbingWall.getStartPoints();
+		Point[] ends = climbingWall.getEndPoints();
+		solver = new AStarSolver(new Position(starts[1], starts[1],  starts[0], starts[0]), 
+								new Position(ends[0], ends[1], ends[0], ends[1]), AStarNodeComparator.INSTANCE, climbingWall);
+	}
 	
 	public void setVisualisation() 
 	{		
@@ -106,7 +115,9 @@ public class Gui extends JFrame
 	
 	private JScrollPane setWallPanel()
 	{
-		wallPanel= new Wall();
+		
+		
+		wallPanel= new Wall(solver);
         wallPanel.setPreferredSize(new Dimension(20000+10,1000));
         wallPanel.setBackground(Color.WHITE);
         
@@ -182,7 +193,7 @@ public class Gui extends JFrame
 	private JLabel setLabelGlebokosc()
 	{
 		EmptyBorder border = new EmptyBorder(10, 10, 10, 20);
-		JLabel label_glebokosc = new JLabel("G³êbokoœæ: ");
+		JLabel label_glebokosc = new JLabel("G³êbokoœæ: "+solver.getDepth());
 		label_glebokosc.setAlignmentX(Component.LEFT_ALIGNMENT);
 		label_glebokosc.setBorder(border);
 		
@@ -192,7 +203,7 @@ public class Gui extends JFrame
 	private JLabel setLabelKosztDotarcia()
 	{
 		EmptyBorder border = new EmptyBorder(10, 10, 10, 20);
-		JLabel label_koszt_dotarcia = new JLabel("Najlepszy koszt dotarcia: ");
+		JLabel label_koszt_dotarcia = new JLabel("Najlepszy koszt dotarcia: "+solver.getCost());
 		label_koszt_dotarcia.setAlignmentX(Component.LEFT_ALIGNMENT);
 		label_koszt_dotarcia.setBorder(border);
 		
