@@ -1,54 +1,43 @@
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Graphics2D;
 import java.awt.Graphics;
-import java.util.Date;
+import java.awt.Graphics2D;
 import java.util.LinkedList;
 import java.util.List;
-
 import javax.swing.JComponent;
 
-
-class Wall extends JComponent 
+class Wall extends JComponent
 {	  
-	private static final long serialVersionUID = 3L;
-	private static Wall instance=null;
-	int x,y;
-	double difficulty;
-	int x_start, y_start;
-	private int rect_side = 40; //jednostka
-	private int oval_radius = 7;
-	
-	private int point_move_radius = 5;
-	
-	private int board_width = 3;
-	private int board_height = 100;
-	private int left_margin = 5;
-	private int top_margin = 10;
-	
-	private double x_move;
-	private double y_move;
-	
-	private int x_average,y_average;
-	long speed = 550L; // szybkość animacji
-	
-
-	
+	private static final long serialVersionUID = 1L;
 	ClimbingWall climbingWall= ClimbingWall.getInstance();
 	AStarSolver c;
 	LinkedList<Move> moves = new LinkedList<Move>();
+
+	private int point_move_radius = 30;
+	private int rect_side = 200; //jednostka
+	private int oval_radius = 20;
 	
+	private int board_width = 3;
+	private int board_height = 100;
+	
+	private int left_margin = 5;
+	private int top_margin = 10;
+	private int index=0;
+	
+	int x_start, y_start;
+	private boolean stopped=true;
 	
 	Point current_top_right = null;
 	Point current_top_left = null;
 	Point current_bottom_right = null;
 	Point current_bottom_left = null;
 	
-	Point[] start  = new Point[2];
-
-	Boolean init = true;
+	private double x_move;
+	private double y_move;
+	private int x_average,y_average;
 	
-	public Wall() {
+	public Wall()
+	{	
 		Point[] starts = climbingWall.getStartPoints();
 		Point[] ends = climbingWall.getEndPoints();
 		AStarSolver c = new AStarSolver(new Position(starts[1], starts[1],  starts[0], starts[0]), 
@@ -66,33 +55,44 @@ class Wall extends JComponent
 		}
 		for(Move m : moves) 
 			System.out.println(m);
+		
+		setStartPoints();	
+	}
+		
+	public void setIndex(int index)
+	{
+		this.index=index;
 	}
 	
-	public void paint(Graphics g2) 
+	public final int getMovesLisSize()
 	{
-		
-		
-	  Graphics2D g = (Graphics2D) g2;
-
-		if(init)
-		{
-		
-			
+		return moves.size();
+	}
+	
+	public void setStopped(boolean stopped)
+	{
+		this.stopped=stopped;
+	}
+	
+	public final boolean isStopped()
+	{
+		return stopped;
+	}
+	
+	public void paint(Graphics g) 
+	{		
 		g.setColor(Color.LIGHT_GRAY);
 		drawWall(g);
-		
+			
 		g.setColor(Color.BLACK);
 		drawPoints(g);
-					
-		drawStartPoints(g);
 		
-
-		for (int index = 0; index < moves.size(); index++)
+		cleaner(g);		
+		
+		synchronized(this)
 		{
-			cleaner(g);			
-			
 			drawMoves(g, index);
-			
+							
 			if(current_top_right != null)
 				drawTopRight(g);
 			if(current_top_left != null)
@@ -101,44 +101,39 @@ class Wall extends JComponent
 				drawBottomRight(g);
 			if(current_bottom_left != null)
 				drawBottomLeft(g);
-		
+			
 			g.setColor(new Color(153,0,153));
 			drawSpider(g);
-			
-			long start = new Date().getTime();
-			while(new Date().getTime() - start < speed){;}
-			
-			drawSpider(g);
 		}
-		init = false;
-		}
-		g.setColor(Color.LIGHT_GRAY);
-		drawWall(g);
-		cleaner(g);
+
 	}
+	
 	public void drawWall(Graphics g)
 	{
 		g.setColor(Color.WHITE);
-		g.fillRect(0, 10, rect_side*board_height+5, rect_side*board_width);
+		g.fillRect(left_margin, top_margin, rect_side*board_height, rect_side*board_width);
 
-		for (int i=5; i<=rect_side*board_height;i=i+rect_side)
-			for (int j=10; j<rect_side*board_width; j=j+rect_side)
+		for (int i=left_margin; i<=rect_side*board_height;i+=rect_side)
+		{
+			for (int j=top_margin; j<rect_side*board_width; j=j+rect_side)
 			{
 				g.setColor(Color.LIGHT_GRAY);
 				g.drawRect(i, j, rect_side, rect_side);
 			}
+		}
 		g.setColor(Color.BLACK);
 		g.drawRect(left_margin, top_margin, rect_side*board_height, rect_side*board_width);
 	}
+	
 	public void drawPoints(Graphics g)
 	{
 		for(int i=0; i < ClimbingWall.getInstance().v.size(); i++) 
 		{
-			y = (int)ClimbingWall.getInstance().v.get(i).getX();
-			x = (int)ClimbingWall.getInstance().v.get(i).getY();
-			difficulty = ClimbingWall.getInstance().v.get(i).getDifficulty();
-			x=x*rect_side;
-			y=y*rect_side;
+			int y = (int)ClimbingWall.getInstance().v.get(i).getX();
+			int x = (int)ClimbingWall.getInstance().v.get(i).getY();
+			double difficulty = ClimbingWall.getInstance().v.get(i).getDifficulty();
+			x=left_margin+x*rect_side;
+			y=top_margin+y*rect_side;
 			
 			if( difficulty >= 1.0  && difficulty < 2.0)
 			{
@@ -161,10 +156,11 @@ class Wall extends JComponent
 				g.setColor(Color.BLACK);
 			}
 	
-			g.fillOval(left_margin+x-2, top_margin+y-2, oval_radius, oval_radius);
+			g.fillOval(x-oval_radius/2,y-oval_radius/2, oval_radius, oval_radius);
 		}  
 	}
-	public void drawStartPoints(Graphics g)
+	
+	public void setStartPoints()
 	{
 			for (int i=0; i<2 ; i++)
 			{
@@ -185,6 +181,7 @@ class Wall extends JComponent
 				}
 			}	
 	}
+	
 	public void drawMoves(Graphics g,int index)
 	{
 		
@@ -209,26 +206,31 @@ class Wall extends JComponent
 				current_bottom_left = new Point((int)y_move*rect_side,(int)x_move*rect_side);
 			}		
 	}
+	
 	public void drawTopRight(Graphics g)
 	{
 		g.setColor(Color.RED);
-		g.fillOval(left_margin+(int)(current_top_right.getX())-2, top_margin+(int)(current_top_right.getY())-2, point_move_radius, point_move_radius);
+		g.fillOval(left_margin+(int)(current_top_right.getX())-point_move_radius/2, top_margin+(int)(current_top_right.getY())-point_move_radius/2, point_move_radius, point_move_radius);
 	}
+	
 	public void drawTopLeft(Graphics g)
 	{
 		g.setColor(Color.GREEN);
-		g.fillOval(left_margin+(int)(current_top_left.getX())-2, top_margin+(int)(current_top_left.getY())-2, point_move_radius, point_move_radius);
+		g.fillOval(left_margin+(int)(current_top_left.getX())-point_move_radius/2, top_margin+(int)(current_top_left.getY())-point_move_radius/2, point_move_radius, point_move_radius);
 	}
+	
 	public void drawBottomRight(Graphics g)
 	{
 		g.setColor(Color.CYAN);
-		g.fillOval(left_margin+(int)(current_bottom_right.getX())-2, top_margin+(int)(current_bottom_right.getY())-2, point_move_radius, point_move_radius);
+		g.fillOval(left_margin+(int)(current_bottom_right.getX())-point_move_radius/2, top_margin+(int)(current_bottom_right.getY())-point_move_radius/2, point_move_radius, point_move_radius);
 	}
+	
 	public void drawBottomLeft(Graphics g)
 	{
 		g.setColor(Color.BLUE);
-		g.fillOval(left_margin+(int)(current_bottom_left.getX())-2, top_margin+(int)(current_bottom_left.getY())-2, point_move_radius, point_move_radius);
+		g.fillOval(left_margin+(int)(current_bottom_left.getX())-point_move_radius/2, top_margin+(int)(current_bottom_left.getY())-point_move_radius/2, point_move_radius, point_move_radius);
 	}
+	
 	public void drawSpider(Graphics g)
 	{
 		x_average = (int)((current_top_right.getX() + current_top_left.getX() + current_bottom_right.getX() + current_bottom_left.getX())/4);
@@ -257,34 +259,11 @@ class Wall extends JComponent
 		 ((Graphics2D) g).setStroke(new BasicStroke(1));
 		 
 	}
+	
 	public void cleaner(Graphics g)
 	{	
 		drawWall(g);
 		g.setColor(Color.BLACK);
 		drawPoints(g);
 	}
-	public static Wall getInstance()
-	{
-		if(instance==null)
-		{
-			instance= new Wall();
-		}
-		
-		return instance;
-	}
 }
-/*class Clear
-{
-	/*void Clear(Graphics g)
-	{	
-		Gui.getInstance().c_button.addActionListener(new ActionListener() 
-		  {
-		       @Override
-		        public void actionPerformed(ActionEvent e) 
-		        {
-		    	   ;
-		        } 
-		  }); 
-		
-	}
-}*/

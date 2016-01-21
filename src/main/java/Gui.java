@@ -1,11 +1,12 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.ScrollPane;
 import java.awt.Toolkit;
-import java.util.LinkedList;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.awt.Dimension;
-
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -17,7 +18,6 @@ import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 
 
-
 public class Gui extends JFrame
 {
 	private static final long serialVersionUID = 1L;
@@ -26,54 +26,38 @@ public class Gui extends JFrame
 	Toolkit tk = Toolkit.getDefaultToolkit();
     Dimension d = tk.getScreenSize();
 	
-	private int width = 600;
-	private int height = 800;
+    private int index=0;
+    
+	private int width = d.width;
+	private int height = d.height;
 	private int width_button = 100;
 	private int height_button = 60;
 	private static int width_of_stat = 200;
+	private static final int DELAY_TIME=300;
 	
 	private JFrame mainFrame;
+	private JScrollPane wallScrollPane;
 	private JPanel statisticsPanel;
 	private JPanel buttonPanel;
 	private JButton button_start;
-	private JButton button_clear;
+	private JButton button_stop;
 	private JLabel label_liczba_pktow;
 	private JLabel label_glebokosc;
 	private JLabel label_koszt_dotarcia;
-	
-	public Gui() 
-	{
-		initialize();
-	}
-
-	private void initialize() 
-	{		 
+	private Wall wallPanel;
 		
-		// Gï¿½ï¿½wny JFrame
+	
+	public void setVisualisation() 
+	{		
 		mainFrame=setMainFrame();
-        
-		//??
-        ScrollPane myContainer = new ScrollPane();   
-        mainFrame.add(myContainer, BorderLayout.CENTER);
-        
-        
-        //?
-	//	JScrollPane myContainer = new JScrollPane(new Wall());     
-	//	myContainer.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-	//	
-	//	 mainFrame.add(myContainer, BorderLayout.CENTER);
-        
-        // Sciana
-        Component  wall = new Wall();
-        myContainer.add(wall);
-        myContainer.setBackground(Color.WHITE);
-             
+                
+		wallScrollPane=setWallPanel();        
+		mainFrame.add(wallScrollPane, BorderLayout.CENTER);
 		buttonPanel=setButtonPanel();
 		mainFrame.add(buttonPanel, BorderLayout.SOUTH);
 		statisticsPanel=setStatisticsPanel();
 		mainFrame.add(statisticsPanel,  BorderLayout.NORTH);
 
-		  
 		Box box = Box.createVerticalBox();
 		label_liczba_pktow=setLabelLiczbaPunktow();
 		box.add(label_liczba_pktow);
@@ -82,10 +66,34 @@ public class Gui extends JFrame
 		label_koszt_dotarcia=setLabelKosztDotarcia();
 		box.add(label_koszt_dotarcia);
 		  
-		statisticsPanel.add(box);  
+		statisticsPanel.add(box); 
+		mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		mainFrame.setVisible(true);
-		   
-	}	
+		
+		runVisualisation();   
+	}
+	
+	public void runVisualisation()
+	{
+		TimerTask task = new TimerTask() 
+		{
+		      public void run() 
+		      {
+		    	  synchronized(wallPanel)
+		    	  {
+		    		  if(index<wallPanel.getMovesLisSize()-1 && !wallPanel.isStopped())
+		    		  {
+		    			  index++; 
+		    			  wallPanel.setIndex(index);
+		    		  }
+		    	  }
+		        wallPanel.repaint();
+		      }
+		};
+		Timer timer = new Timer();
+		timer.schedule(task, 0, DELAY_TIME);
+	}
+		
 	public static Gui getInstance()
 	{
 		if(instance==null)
@@ -96,11 +104,23 @@ public class Gui extends JFrame
 		return instance;
 	}
 	
+	private JScrollPane setWallPanel()
+	{
+		wallPanel= new Wall();
+        wallPanel.setPreferredSize(new Dimension(20000+10,1000));
+        wallPanel.setBackground(Color.WHITE);
+        
+        JScrollPane wallScrollPane = new JScrollPane(wallPanel);
+        wallScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        wallScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+        
+        return wallScrollPane;
+	}
+	
 	private JFrame setMainFrame()
 	{
 		JFrame mainFrame = new JFrame("Wspinaczka");
 		mainFrame.setDefaultCloseOperation (JFrame.EXIT_ON_CLOSE);
-		mainFrame.setSize(d.width,350);
 		mainFrame.setLocationRelativeTo(null);
             
         return mainFrame;
@@ -124,11 +144,27 @@ public class Gui extends JFrame
 		buttonPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1, true));
 		   
 		button_start = new JButton("Start");
-		button_clear = new JButton("Clear");
-
-		button_start.setBounds((width-width_button)/2,height-150,width_button,height_button);  
+		button_stop = new JButton("Stop");
+		button_start.setBounds((width-width_button)/2,height-150,width_button,height_button); 
+		
+		button_start.addActionListener( new ActionListener()
+		{
+		    public void actionPerformed(ActionEvent e)
+		    {
+		        wallPanel.setStopped(false);
+		    }
+		});
+		
+		button_stop.addActionListener( new ActionListener()
+		{
+		    public void actionPerformed(ActionEvent e)
+		    {
+		        wallPanel.setStopped(true);
+		    }
+		});
+		
 		buttonPanel.add(button_start);
-		buttonPanel.add(button_clear);
+		buttonPanel.add(button_stop);
 		
 		return buttonPanel;
 	}
@@ -136,7 +172,7 @@ public class Gui extends JFrame
 	private JLabel setLabelLiczbaPunktow()
 	{
 		EmptyBorder border = new EmptyBorder(10, 10, 10, 20);
-		JLabel label_liczba_pktow = new JLabel("Liczba punktï¿½w: "+ ClimbingWall.getInstance().getnumberOfPoints());
+		JLabel label_liczba_pktow = new JLabel("Liczba punktów: "+ ClimbingWall.getInstance().getnumberOfPoints());
 		label_liczba_pktow.setAlignmentX(Component.LEFT_ALIGNMENT);
 		label_liczba_pktow.setBorder(border);
 		
@@ -146,7 +182,7 @@ public class Gui extends JFrame
 	private JLabel setLabelGlebokosc()
 	{
 		EmptyBorder border = new EmptyBorder(10, 10, 10, 20);
-		JLabel label_glebokosc = new JLabel("Gï¿½ï¿½bokoï¿½ï¿½: ");
+		JLabel label_glebokosc = new JLabel("G³êbokoœæ: ");
 		label_glebokosc.setAlignmentX(Component.LEFT_ALIGNMENT);
 		label_glebokosc.setBorder(border);
 		
@@ -162,11 +198,4 @@ public class Gui extends JFrame
 		
 		return label_koszt_dotarcia;
 	}
-	
-	public void setVisualisation(LinkedList <Move> moves)
-	{
-		
-	}
 }
-	
-

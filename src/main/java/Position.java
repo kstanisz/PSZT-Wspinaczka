@@ -1,6 +1,3 @@
-import java.util.List;
-
-
 public class Position implements AStarNode {
 	Point arm0;
 	Point arm1;

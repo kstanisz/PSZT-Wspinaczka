@@ -1,6 +1,3 @@
-import java.util.List;
-
-
 public interface AStarNode {
 	
 	public int hashCode();

@@ -1,15 +1,10 @@
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
 
-import org.jgrapht.graph.DefaultWeightedEdge;
-import org.jgrapht.graph.SimpleDirectedWeightedGraph;
-
 public class AStarSolver {
-	private ClimbingWall wall;
 	private AStarNode position;
 	private AStarNode goal;
 	private Comparator<AStarNode> comp;
