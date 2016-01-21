@@ -32,6 +32,8 @@ class Wall extends JComponent
 	Point current_bottom_right = null;
 	Point current_bottom_left = null;
 	
+	Point[] points;
+	
 	private double x_move;
 	private double y_move;
 	private int x_average,y_average;
@@ -55,7 +57,7 @@ class Wall extends JComponent
 		}
 		for(Move m : moves) 
 			System.out.println(m);
-		
+				
 		setStartPoints();	
 	}
 		
@@ -127,45 +129,45 @@ class Wall extends JComponent
 	
 	public void drawPoints(Graphics g)
 	{
-		for(int i=0; i < ClimbingWall.getInstance().v.size(); i++) 
+		for(Point point:climbingWall.getGraph().vertexSet())
 		{
-			double y = ClimbingWall.getInstance().v.get(i).getX();
-			double x = ClimbingWall.getInstance().v.get(i).getY();
-			double difficulty = ClimbingWall.getInstance().v.get(i).getDifficulty();
+			double y = point.getX();
+			double x = point.getY();
+			double difficulty = point.getDifficulty();
 			x=left_margin+x*rect_side;
 			y=top_margin+y*rect_side;
 
-			if( difficulty >= 1.0  && difficulty < 2.0)
+			if( difficulty >= 1.0  && difficulty < 1.2)
 			{
 				g.setColor(new Color(192, 192, 192)); //light gray
 			}
-			else if( difficulty >= 2.0  && difficulty < 3.0)
+			else if( difficulty >= 1.2  && difficulty < 1.4)
 			{
 				g.setColor(new Color(128, 128, 128));
 			}
-			else if( difficulty >= 3.0  && difficulty < 4.0)
+			else if( difficulty >= 1.4  && difficulty < 1.6)
 			{
 				g.setColor(new Color(64, 64, 64));
 			}
-			else if( difficulty >= 4.0  && difficulty < 5.0)
+			else if( difficulty >= 1.6  && difficulty < 1.8)
 			{
 				g.setColor(new Color(32, 32, 32)); //dark gray
 			}
-			else if( difficulty >= 5.0)
+			else if( difficulty >= 1.8)
 			{
 				g.setColor(Color.BLACK);
 			}
 	
 			g.fillOval((int)x-oval_radius/2,(int)y-oval_radius/2, oval_radius, oval_radius);
-		}  
+		}
 	}
 	
 	public void setStartPoints()
 	{
 			for (int i=0; i<2 ; i++)
 			{
-				y_start = ClimbingWall.getInstance().v.get(i).getX();
-				x_start = ClimbingWall.getInstance().v.get(i).getY();
+				y_start= climbingWall.getStartPoints()[i].getX();
+				x_start= climbingWall.getStartPoints()[i].getY();
 				x_start = x_start*rect_side;
 				y_start = y_start *rect_side;
 					
