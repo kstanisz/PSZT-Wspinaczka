@@ -11,16 +11,17 @@ public class AStarSolver {
 	private AStarGraph graph;
 	private double cost;
 	private int depth = 0;
+	private double[] rangeMin;
 	
-	public AStarSolver(AStarNode position, AStarNode goal, Comparator<AStarNode> comp, AStarGraph graph) {
+	public AStarSolver(AStarNode position, AStarNode goal, Comparator<AStarNode> comp, AStarGraph graph, double[] rangeMin) {
 		this.position = position;
 		this.goal = goal;
 		this.comp = comp;
 		this.graph = graph;
+		this.rangeMin = rangeMin;
 	}
 	
 	public LinkedList<AStarNode> solve() {
-		int counter = 0;
 		PriorityQueue<AStarNode> frontier = new PriorityQueue<AStarNode>(11, comp);
 		frontier.add(position);
 		HashMap<AStarNode, AStarNode> came_from = new HashMap<AStarNode, AStarNode>();
@@ -47,7 +48,7 @@ public class AStarSolver {
 					if(!cost_so_far.containsKey(node) || new_cost < cost_so_far.get(node)) {
 						cost_so_far.put(node, new_cost);
 						depth_so_far.put(node, new Integer(current_depth + 1));
-						node.setPriority(new_cost + node.heuristic(goal));
+						node.setPriority(new_cost + node.heuristic(goal, rangeMin));
 						frontier.add(node);
 						came_from.put(node, current);
 					}

@@ -86,10 +86,59 @@ public class Position implements AStarNode {
 		return false;
 	}
 	
+	public double getRangeSum(Point goal, Point start, double[] rangeMin) {
+		double sum = 0;
+		int points = (int)Math.ceil( 
+				Math.sqrt((goal.getY()-start.getY())*(goal.getY()-start.getY()) + 
+						(goal.getX()-start.getX())*(goal.getX()-start.getX())) /2 ); // ilosc punktÃ³w do koÅ„ca
+		double yRange = (goal.getY() - start.getY())/points; // Å›rednia odlegÅ‚oÅ›Ä‡ miÄ™dzy punktami
+		double startY = start.getY();
+		for(int i = 0; i < points; ++i) {
+			startY += yRange; // nastÄ™pny punkt
+			double minimum = 2;
+			int index = (int)startY;
+			for(int j = index-6; j<index+6; ++j) {
+				if(j<0 || j>goal.getY())
+					continue;
+				minimum = Math.min(minimum, rangeMin[j]); // minimum z zakresu
+			}
+			sum+=(minimum*4);
+		}
+		return sum;
+	}
+	
+	public double heuristic(AStarNode goal, double[] rangeMin) {
+		double sum = 0;
+		Position g = (Position) goal;
+		// heurystyka dla rÄ…k - suma odlegÅ‚oÅ›ci w linii prostej rÄ…k do celi - bierzemy minima z przedziaÅ‚Ã³w
+		double arm0ToGoalOne = getRangeSum(g.arm0, arm1, rangeMin);
+		double arm0ToGoalTwo = getRangeSum(g.arm1, arm1, rangeMin);
+		double arm1ToGoalOne = getRangeSum(g.arm0, arm0, rangeMin);
+		double arm1ToGoalTwo = getRangeSum(g.arm1, arm0, rangeMin);
+
+		// krÃ³tsza z sum
+		sum += Math.min(arm0ToGoalOne + arm1ToGoalTwo, arm0ToGoalTwo + arm1ToGoalOne);
+		
+		//heurystyka dla nÃ³g - suma odlegÅ‚oÅ›ci nÃ³g od wysokoÅ›ci Å›ciany-maxStep  (nie jest istotne gdzie nogi skoÅ„czÄ… swÃ³j bieg, byle rÄ™ce byÅ‚y na miejscu)
+		//wysokoÅ›Ä‡ sciany - maxStep to minimalna wysokoÅ›Ä‡, na ktÃ³rÄ… muszÄ… wejsÄ‡ nogi
+		
+		double leg0ToTop = g.arm0.getY()-maxStep-leg0.getY();
+		if(new Double(leg0ToTop).compareTo(new Double(0)) > 0) {
+			sum += getRangeSum(new Point(leg0.getX(), g.arm0.getY() - 2 ), leg0, rangeMin);
+		}
+	
+		double leg1ToTop = g.arm0.getY()-maxStep-leg1.getY();
+		if(new Double(leg1ToTop).compareTo(new Double(0)) > 0) {
+			sum += getRangeSum(new Point(leg1.getX(), g.arm0.getY() - 2 ), leg1, rangeMin);
+		}
+		
+		return sum;
+	}
+	
 	public double heuristic(AStarNode goal) {
 		double sum = 0;
 		Position g = (Position) goal;
-		// heurystyka dla r¹k - suma odleg³oœci w linii prostej r¹k do celi
+		// heurystyka dla rÂ¹k - suma odlegÂ³oÅ“ci w linii prostej rÂ¹k do celi
 		double arm0ToGoalOne = Math.sqrt((g.arm0.getY()-arm1.getY())*(g.arm0.getY()-arm1.getY()) + 
 						(g.arm0.getX()-arm1.getX())*(g.arm0.getX()-arm1.getX()));
 		double arm0ToGoalTwo = Math.sqrt((g.arm1.getY()-arm1.getY())*(g.arm1.getY()-arm1.getY()) + 
@@ -98,25 +147,18 @@ public class Position implements AStarNode {
 						(g.arm0.getX()-arm0.getX())*(g.arm0.getX()-arm0.getX()));
 		double arm1ToGoalTwo = Math.sqrt((g.arm1.getY()-arm0.getY())*(g.arm1.getY()-arm0.getY()) + 
 						(g.arm1.getX()-arm0.getX())*(g.arm1.getX()-arm0.getX()));
-		double steps1, steps2;
-		if(new Double(arm0ToGoalOne + arm1ToGoalTwo).compareTo(new Double(arm1ToGoalOne + arm0ToGoalTwo)) < 0) { // minimum odleg³oœci r¹k do takiego momentu, w którym obie s¹ na ró¿nych punktach koñcowych, sprawdzamy która kombinacja daje krótsz¹ sumê odleg³oœci
-			steps1 = Math.ceil(arm0ToGoalOne/maxStep); // minimalna iloœæ przesuniêæ pierwszej rêki do pierwszego celu
-			steps2 = Math.ceil(arm1ToGoalTwo/maxStep); // analogicznie
-			
-		} else {
-			steps1 = Math.ceil(arm1ToGoalOne/maxStep); // minimalna iloœæ przesuniêæ drugiej rêki do pierwszego celu
-			steps2 = Math.ceil(arm0ToGoalTwo/maxStep); // analogicznie
-		}
-		/* jeœli potrzeba minimum steps1 kroków dla np. pierwszej rêki, 
-		 * i minimalna trudnoœæ ka¿dego z zaczepów na drodze to 1, to mamy juz steps1 kosztu przy dotarciu. 
-		 * Trzeba tez dla ka¿dego z ruchów policzyæ sumê trudnoœci dla pozosta³ych nóg w tym ruchu, 
-		 * minimalnie 3 (ka¿da noga w ruchu musi na czymœ staæ). £¹cznie mamy 4 * steps1. 
-		 * Analogicznie dla drugiej rêki.
-		 */
-		sum += 4 * (steps1 + steps2); 
 		
-		//heurystyka dla nóg - suma odleg³oœci nóg od wysokoœci œciany-maxStep  (nie jest istotne gdzie nogi skoñcz¹ swój bieg, byle rêce by³y na miejscu)
-		//wysokoœæ sciany - maxStep to minimalna wysokoœæ, na któr¹ musz¹ wejsæ nogi
+		double maxSum = Math.min(Math.ceil(arm0ToGoalOne/maxStep) + Math.ceil(arm1ToGoalTwo/maxStep), Math.ceil(arm1ToGoalOne/maxStep) + Math.ceil(arm0ToGoalTwo/maxStep));
+		/* jeÅ“li potrzeba minimum steps1 krokÃ³w dla np. pierwszej rÃªki, 
+		 * i minimalna trudnoÅ“Ã¦ kaÂ¿dego z zaczepÃ³w na drodze to 1, to mamy juz steps1 kosztu przy dotarciu. 
+		 * Trzeba tez dla kaÂ¿dego z ruchÃ³w policzyÃ¦ sumÃª trudnoÅ“ci dla pozostaÂ³ych nÃ³g w tym ruchu, 
+		 * minimalnie 3 (kaÂ¿da noga w ruchu musi na czymÅ“ staÃ¦). Â£Â¹cznie mamy 4 * steps1. 
+		 * Analogicznie dla drugiej rÃªki.
+		 */
+		sum += 4 * (maxSum); 
+		
+		//heurystyka dla nÃ³g - suma odlegÂ³oÅ“ci nÃ³g od wysokoÅ“ci Å“ciany-maxStep  (nie jest istotne gdzie nogi skoÃ±czÂ¹ swÃ³j bieg, byle rÃªce byÂ³y na miejscu)
+		//wysokoÅ“Ã¦ sciany - maxStep to minimalna wysokoÅ“Ã¦, na ktÃ³rÂ¹ muszÂ¹ wejsÃ¦ nogi
 		
 		double leg0ToTop = g.arm0.getY()-maxStep-leg0.getY();
 		if(new Double(leg0ToTop).compareTo(new Double(0)) < 0) {

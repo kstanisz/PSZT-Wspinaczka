@@ -28,6 +28,7 @@ public class ClimbingWall implements AStarGraph
 	private SimpleDirectedWeightedGraph<Point, DefaultWeightedEdge> graph;
 	private Point[] startPoints= new Point[2];
 	private Point[] endPoints= new Point[2];
+	private double[] rangeMin = new double[101];
 	
 	Vector<Point> v = new Vector<Point>(); //vector zawierajacy wszystkie punkty
 	
@@ -269,5 +270,19 @@ public class ClimbingWall implements AStarGraph
 			}
 		}
 		return nextNodes;
+	}
+	
+	public void countRangePoints() {
+		for(int i = 0; i < 101; ++i)
+			rangeMin[i] = 2;
+		for(Point p: graph.vertexSet()) {
+			int y = (int)p.getY();
+			if(p.getDifficulty() < rangeMin[y])
+				rangeMin[y] = p.getDifficulty();
+		}
+	}
+	
+	public double[] getRangeMin() {
+		return rangeMin;
 	}
 }

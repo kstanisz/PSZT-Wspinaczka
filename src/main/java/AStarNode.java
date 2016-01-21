@@ -8,6 +8,8 @@ public interface AStarNode {
 	
 	public double value();
 	
+	public double heuristic(AStarNode goal, double[] rangeMin);
+	
 	public double heuristic(AStarNode goal);
 	
 	public void setPriority(double priority);

@@ -85,8 +85,8 @@ public class Gui extends JFrame
 		    	  {
 		    		  if(index<wallPanel.getMovesLisSize()-1 && !wallPanel.isStopped())
 		    		  {
-		    			  index++; 
 		    			  wallPanel.setIndex(index);
+		    			  index++; 
 		    		  }
 		    	  }
 		        wallPanel.repaint();

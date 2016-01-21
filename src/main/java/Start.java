@@ -7,11 +7,13 @@ public class Start
 		ClimbingWall climbingWall= ClimbingWall.getInstance();
 		//climbingWall.readPointsFromFile();
 		climbingWall.generatePoints();
+		climbingWall.countRangePoints();
 		
 		Point[] starts = climbingWall.getStartPoints();
 		Point[] ends = climbingWall.getEndPoints();
 		AStarSolver solver= new AStarSolver(new Position(starts[1], starts[1],  starts[0], starts[0]), 
-								new Position(ends[0], ends[1], ends[0], ends[1]), AStarNodeComparator.INSTANCE, climbingWall);
+								new Position(ends[0], ends[1], ends[0], ends[1]), AStarNodeComparator.INSTANCE, climbingWall,
+								climbingWall.getRangeMin());
 		System.out.println("Algorytm A* rozwiazuje problem...");
 		List<AStarNode> positions = solver.solve();
 		
