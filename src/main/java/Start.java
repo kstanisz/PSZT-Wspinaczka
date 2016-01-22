@@ -5,8 +5,8 @@ public class Start
 	public static void main(String[] args)
 	{
 		ClimbingWall climbingWall= ClimbingWall.getInstance();
-		//climbingWall.readPointsFromFile();
-		climbingWall.generatePoints();
+		climbingWall.readPointsFromFile();
+		//climbingWall.generatePoints();
 		climbingWall.countRangePoints();
 		
 		Point[] starts = climbingWall.getStartPoints();

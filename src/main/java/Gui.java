@@ -8,14 +8,19 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.awt.Dimension;
+
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
+import javax.swing.KeyStroke;
 import javax.swing.border.EmptyBorder;
 
 
@@ -108,16 +113,54 @@ public class Gui extends JFrame
 	
 	private JScrollPane setWallPanel(List<AStarNode> positions)
 	{
-		
 		wallPanel= new Wall(positions);
 		wallPanel.setPreferredSize(new Dimension(20000+10,1000));
 		wallPanel.setBackground(Color.WHITE);
 		
-        JScrollPane wallScrollPane = new JScrollPane(wallPanel);
+        final JScrollPane wallScrollPane = new JScrollPane(wallPanel);
         wallScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         wallScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
         
+       setScrollKeyAction(wallScrollPane);
+
         return wallScrollPane;
+	}
+	
+	private void setScrollKeyAction(final JScrollPane wallScrollPane)
+	{
+		final int increment = 5;
+		wallScrollPane.getVerticalScrollBar().setUnitIncrement(increment);
+
+		KeyStroke keyRight = KeyStroke.getKeyStroke("RIGHT");
+		KeyStroke keyLeft = KeyStroke.getKeyStroke("LEFT");
+
+		wallScrollPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyRight,"actionWhenKeyRight");
+		wallScrollPane.getActionMap().put("actionWhenKeyRight",
+			new AbstractAction("keyRightAction")
+	        {
+				private static final long serialVersionUID = 1L;
+				public void actionPerformed(ActionEvent e)
+				{
+					final JScrollBar bar = wallScrollPane.getHorizontalScrollBar();
+					int currentValue = bar.getValue();
+					bar.setValue(currentValue + increment);
+				}
+	        }
+		);
+	        
+		wallScrollPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyLeft,"actionWhenKeyLeft");
+		wallScrollPane.getActionMap().put("actionWhenKeyLeft",
+	        new AbstractAction("keyLeftAction")
+	        {
+				private static final long serialVersionUID = 1L;
+				public void actionPerformed(ActionEvent e)
+				{
+					final JScrollBar bar = wallScrollPane.getHorizontalScrollBar();
+					int currentValue = bar.getValue();
+					bar.setValue(currentValue - increment);
+				}
+	        }
+		);
 	}
 	
 	private JFrame setMainFrame()
