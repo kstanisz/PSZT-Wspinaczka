@@ -34,7 +34,7 @@ public class Gui extends JFrame
 	private int width_button = 100;
 	private int height_button = 60;
 	private static int width_of_stat = 200;
-	private static final int DELAY_TIME=300;
+	private static final int DELAY_TIME=500;
 	
 	private JFrame mainFrame;
 	private JScrollPane wallScrollPane;

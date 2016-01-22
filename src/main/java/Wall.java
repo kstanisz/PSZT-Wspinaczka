@@ -119,6 +119,14 @@ class Wall extends JComponent
 		}
 		g.setColor(Color.BLACK);
 		g.drawRect(left_margin, top_margin, rect_side*board_height, rect_side*board_width);
+		
+		int currentX=left_margin;
+		for(Integer i=0;i<=100;i++)
+		{
+			g.drawString(i.toString(),currentX, 3*top_margin+rect_side*board_width);
+			currentX+=rect_side;
+		}
+		
 	}
 	
 	public void drawPoints(Graphics g)
